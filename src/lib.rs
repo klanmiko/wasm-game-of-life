@@ -47,7 +47,7 @@ impl Board {
         (x * self.rows + y) as usize
     }
 
-    pub fn update(&self) -> Board {
+    pub fn update(&mut self) {
         let mut new_cells: Vec<AutomataCell> = vec!();
         for i in 0..self.rows {
             for j in 0..self.cols {
@@ -66,12 +66,7 @@ impl Board {
                 new_cells.push(self.cells[index].update_cell(&neighbors[..]));
             }
         }
-
-        Board {
-            rows: self.rows,
-            cols: self.cols,
-            cells: new_cells
-        }
+        self.cells = new_cells
     }
 }
 
