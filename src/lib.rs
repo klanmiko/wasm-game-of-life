@@ -52,10 +52,12 @@ impl Board {
         for i in 0..self.rows {
             for j in 0..self.cols {
                 let mut neighbors: [AutomataCell; 8] = [AutomataCell{ state: CellState::Dead }; 8];
-                for nj in max(0, j - 1)..min(j + i, self.cols) {
-                    for ni in max(0, i - 1)..min(self.rows, i + 1) {
+                let mut count = 0;
+                for nj in max(0, j as i32 - 1) as u16..min(j + 1, self.cols) {
+                    for ni in max(0, i as i32 - 1) as u16..min(self.rows, i + 1) {
                         if ni != i && nj != j {
-                            neighbors[i as usize] = self.cells[self.index(ni, nj)]
+                            neighbors[count] = self.cells[self.index(ni as u16, nj as u16)];
+                            count += 1;
                         }
                     }
                 }

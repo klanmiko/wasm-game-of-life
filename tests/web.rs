@@ -27,3 +27,13 @@ fn set_a_cell() {
     let cells = board.cells();
     assert_eq!(cells[0], 1);
 }
+
+#[wasm_bindgen_test]
+fn update() {
+    let mut board = Board::new(20, 20);
+    board.toggle_cell(5, 5);
+    board.toggle_cell(5, 4);
+    board.toggle_cell(5, 6);
+    board.toggle_cell(4, 5);
+    board.update();
+}
