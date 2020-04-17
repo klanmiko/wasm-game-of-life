@@ -23,7 +23,7 @@ fn create_board() {
 #[wasm_bindgen_test]
 fn set_a_cell() {
     let mut board = Board::new(2, 2);
-    board.set_cell(0, 0, CellState::Alive);
+    board.toggle_cell(0, 0);
     let cells = board.cells();
     assert_eq!(cells[0], 1);
 }

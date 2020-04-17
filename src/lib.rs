@@ -28,10 +28,13 @@ impl Board {
         }
     }
 
-    pub fn set_cell(&mut self, x: u16, y: u16, other: CellState) -> Option<CellState> {
+    pub fn toggle_cell(&mut self, x: u16, y: u16) -> Option<CellState> {
         let index = self.index(x, y);
         self.cells.get_mut(index).map(|cell| {
-            cell.state = other;
+            cell.state = match cell.state {
+                CellState::Alive => CellState::Dead,
+                CellState::Dead => CellState::Alive
+            };
             return cell.state;
         })
     }
@@ -77,9 +80,8 @@ pub enum CellState {
     Alive
 }
 
-#[wasm_bindgen]
 #[derive(Copy, Clone)]
-pub struct AutomataCell {
+struct AutomataCell {
     pub state: CellState
 }
 
@@ -102,7 +104,6 @@ impl From<AutomataCell> for bool {
     }
 }
 
-#[wasm_bindgen]
 impl AutomataCell {
     fn update_cell(&self, neighbors: &[AutomataCell]) -> AutomataCell {
         let mut count = 0;
