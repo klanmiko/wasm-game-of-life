@@ -1,3 +1,5 @@
+![Node.js Package](https://github.com/klanmiko/wasm-game-of-life/workflows/Node.js%20Package/badge.svg)
+
 <div align="center">
 
   <h1><code>wasm-pack-template</code></h1>
