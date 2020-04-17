@@ -28,6 +28,8 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
+        env:
+          working_directory: ./pkg
       - run: npm publish
         env:
           working_directory: ./pkg
