@@ -6,9 +6,17 @@ mod utils;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-use std::{fmt, error};
 use std::cmp::{max, min};
 use wasm_bindgen::prelude::*;
+
+extern crate web_sys;
+
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
 
 #[wasm_bindgen]
 pub struct Board {
@@ -48,22 +56,22 @@ impl Board {
     }
 
     pub fn update(&mut self) {
-        let mut new_cells: Vec<AutomataCell> = vec!();
+        let mut new_cells: Vec<AutomataCell> = vec![AutomataCell{ state: CellState::Dead}; self.cells.len()];
         for i in 0..self.rows {
             for j in 0..self.cols {
                 let mut neighbors: [AutomataCell; 8] = [AutomataCell{ state: CellState::Dead }; 8];
                 let mut count = 0;
-                for nj in max(0, j as i32 - 1) as u16..min(j + 1, self.cols) {
-                    for ni in max(0, i as i32 - 1) as u16..min(self.rows, i + 1) {
-                        if ni != i && nj != j {
-                            neighbors[count] = self.cells[self.index(ni as u16, nj as u16)];
+                for nj in max(0, j as i32 - 1) as u16..min(j + 2, self.cols) {
+                    for ni in max(0, i as i32 - 1) as u16..min(self.rows, i + 2) {
+                        if ni != i || nj != j {
+                            neighbors[count] = self.cells[self.index(ni, nj)];
                             count += 1;
                         }
                     }
                 }
 
                 let index = self.index(i, j);
-                new_cells.push(self.cells[index].update_cell(&neighbors[..]));
+                new_cells[index] = self.cells[index].update_cell(&neighbors[..]);
             }
         }
         self.cells = new_cells
