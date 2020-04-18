@@ -43,26 +43,29 @@ impl Board {
     }
 
     fn index(&self, x: u16, y: u16) -> usize {
-        (x * self.rows + y) as usize
+        (x * self.cols + y) as usize
+    }
+
+    fn get_neighbors(&self, x: u16, y: u16) -> [AutomataCell; 8] {
+        let mut neighbors: [AutomataCell; 8] = [AutomataCell{ state: CellState::Dead }; 8];
+        let mut count = 0;
+        for nj in max(0, x as i32 - 1) as u16..min(x + 2, self.cols) {
+            for ni in max(0, y as i32 - 1) as u16..min(self.rows, y + 2) {
+                if ni != y || nj != x {
+                    neighbors[count] = self.cells[self.index(ni, nj)];
+                    count += 1;
+                }
+            }
+        }
+        neighbors
     }
 
     pub fn update(&mut self) {
         let mut new_cells: Vec<AutomataCell> = vec![AutomataCell{ state: CellState::Dead}; self.cells.len()];
         for i in 0..self.rows {
             for j in 0..self.cols {
-                let mut neighbors: [AutomataCell; 8] = [AutomataCell{ state: CellState::Dead }; 8];
-                let mut count = 0;
-                for nj in max(0, j as i32 - 1) as u16..min(j + 2, self.cols) {
-                    for ni in max(0, i as i32 - 1) as u16..min(self.rows, i + 2) {
-                        if ni != i || nj != j {
-                            neighbors[count] = self.cells[self.index(ni, nj)];
-                            count += 1;
-                        }
-                    }
-                }
-
                 let index = self.index(i, j);
-                new_cells[index] = self.cells[index].update_cell(&neighbors[..]);
+                new_cells[index] = self.cells[index].update_cell(&self.get_neighbors(j, i));
             }
         }
         self.cells = new_cells
@@ -91,24 +94,9 @@ impl From<AutomataCell> for u8 {
     }
 }
 
-impl From<AutomataCell> for bool {
-    fn from(cell: AutomataCell) -> bool {
-        match cell.state {
-            CellState::Alive => true,
-            CellState::Dead => false
-        }
-    }
-}
-
 impl AutomataCell {
     fn update_cell(&self, neighbors: &[AutomataCell]) -> AutomataCell {
-        let mut count = 0;
-        for neighbor in neighbors {
-            count += match neighbor.state {
-                CellState::Alive => 1,
-                CellState::Dead => 0
-            }
-        }
+        let count = neighbors.iter().map(|n| n.state as u8).sum();
     
         AutomataCell{
             state: match (self.state, count) {
