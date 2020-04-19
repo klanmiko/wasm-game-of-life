@@ -7,6 +7,7 @@ mod utils;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use std::cmp::{max, min};
+use std::mem;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -30,9 +31,12 @@ impl Board {
     pub fn toggle_cell(&mut self, x: u16, y: u16) -> Option<CellState> {
         let index = self.index(x, y);
         self.cells.get_mut(index).map(|cell|
-            match cell {
+            (match cell {
                 CellState::Alive => CellState::Dead,
                 CellState::Dead => CellState::Alive
+            }, cell)).map(|(val, cell)| {
+                mem::replace(cell, val);
+                val
             })
     }
 
